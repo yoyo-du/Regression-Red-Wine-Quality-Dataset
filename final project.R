@@ -188,7 +188,6 @@ test_data$good.wine <- as.factor(test_data$good.wine)
 confusionMatrix(predicted_values, test_data$good.wine)
 
 ## ROC curve
-## ROC curve
 y <- as.numeric(test_data$good.wine)
 g <- roc(y ~ predicted_values)
 plot(g, grid = TRUE, print.auc = TRUE)
