@@ -188,21 +188,7 @@ test_data$good.wine <- as.factor(test_data$good.wine)
 confusionMatrix(predicted_values, test_data$good.wine)
 
 ## ROC curve
+## ROC curve
 y <- as.numeric(test_data$good.wine)
-g <- roc(y ~ predict(model,))
+g <- roc(y ~ predicted_values)
 plot(g, grid = TRUE, print.auc = TRUE)
-
-
-# not all predictors are significant (due to multicollnearity). A forward selection method will be employed to build a working model. 
-
-# Regression coefficients will need to be interpreted with respect to the transformed scale; improve fit
-# polynmial 
-
-# Compare the prediction accuracy on the test set
-wine_data$good.wine<-ifelse(wine_data$quality>6,1,0)
-
-## Logit model 
-model_or <- polr(rating~volatile.acidity + chlorides + total.sulfur.dioxide + pH + sulphates + alcohol,
-                 data = train_data, Hess = TRUE)
-pred_or <- predict(model_or, type="class")
-summary(model_or)
