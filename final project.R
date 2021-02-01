@@ -8,6 +8,7 @@ library(dplyr)
 library(readr)
 library(nnet)
 library(VGAM)
+library(pROC)
 
 
 wine_data <-read.csv("winequality-red.csv", TRUE, ";")
@@ -172,19 +173,24 @@ mean((test_data$quality - pred_lasso) ** 2)
 #logistic regression
 wine_data$good.wine <- ifelse(wine_data$quality > 6, 1, 0)
 wine_data$good.wine <- as.factor(wine_data$good.wine)
-set.seed(6)
+set.seed(12345)
 test.set <- seq(1,1599,2)
 train_data <- wine_data[-test.set,]
 test_data <- wine_data[test.set,]
 str(wine_data)
 head(wine_data)
-model <- glm(good.wine ~ volatile.acidity + chlorides + total.sulfur.dioxide + pH + sulphates + alcohol, family = binomial(link='logit'), data = train_data)
+model <- glm(good.wine ~ volatile.acidity + chlorides + total.sulfur.dioxide + pH + sulphates + alcohol, family = binomial, data = train_data)
 summary(model)
 predictions <- predict(model, test_data, type = "response")
 predicted_values <- ifelse(predictions > 0.5, 1, 0)
 predicted_values <- as.factor(predicted_values)
 test_data$good.wine <- as.factor(test_data$good.wine)
 confusionMatrix(predicted_values, test_data$good.wine)
+
+## ROC curve
+y <- as.numeric(test_data$good.wine)
+g <- roc(y ~ predict(model,))
+plot(g, grid = TRUE, print.auc = TRUE)
 
 
 # not all predictors are significant (due to multicollnearity). A forward selection method will be employed to build a working model. 
@@ -196,4 +202,7 @@ confusionMatrix(predicted_values, test_data$good.wine)
 wine_data$good.wine<-ifelse(wine_data$quality>6,1,0)
 
 ## Logit model 
-
+model_or <- polr(rating~volatile.acidity + chlorides + total.sulfur.dioxide + pH + sulphates + alcohol,
+                 data = train_data, Hess = TRUE)
+pred_or <- predict(model_or, type="class")
+summary(model_or)
